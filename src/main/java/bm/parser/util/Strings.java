@@ -1,11 +1,11 @@
 package bm.parser.util;
 
-import bm.parser.BmException;
+import bm.parser.ParserException;
 
 public class Strings {
   public static String requireNotEmpty(String name) {
     if (name == null || name.isEmpty()) {
-      throw new BmException("not null");
+      throw new ParserException("not null");
     }
 
     return name;

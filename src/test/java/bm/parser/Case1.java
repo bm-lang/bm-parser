@@ -1,6 +1,7 @@
 package bm.parser;
 
 import bakasoft.json.Json;
+import bm.parser.target.PSuite;
 import org.junit.Test;
 
 public class Case1 {
@@ -8,9 +9,9 @@ public class Case1 {
   @Test
   public void test() {
     try {
-      BmSuite suite = new BmSuite("../bm-core/bm.json");
+      Parser parser = new Parser("../bm-core/bm.json");
 
-      suite.parseSourceFiles();
+      PSuite suite = parser.parseSuite();
 
       System.out.println(Json.stringify(suite, 2));
     } catch (Exception e) {
