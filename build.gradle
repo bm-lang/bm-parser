@@ -3,9 +3,13 @@ plugins {
 }
 
 group 'bm'
-version '0.0.1'
+version '0.0.2'
 
 sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
 
 dependencies {
     compile "gramat:jgramat:0.1.1"
