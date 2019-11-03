@@ -1,0 +1,37 @@
+whitespace = `\s \n \r \t`
+letter = `a..z A..Z _ @ $`
+digit = `0..9`
+
+line-end = [ `\r` ] `\n`| $
+inline-comment = "//" {<line-end>} line-end
+block-comment = "/*" {<"*/">} "*/"
+blank = whitespace | inline-comment | block-comment
+void = {blank}
+symbol = letter {letter | digit}
+
+ModuleAccess = @value("export" | "share" | "protect")
+FieldMode = @value("const" | "var")
+MemberModifier = @value("native")
+OperatorMode = @value("[]=" | "[]" | `- + * / ^ ~`)
+
+GenericArgument = @object("<" void {+ @add:types(TypeRef) / void "," void } void ">")
+GenericDeclaration = @object(
+  @set:name(Name) void
+  @set:type(TypeRef)
+)
+GenericSignature = @object("<" void {+ @add:declarations(GenericDeclaration) / void "," void } void ">")
+
+Name = @object( @set:text(symbol) )
+
+MemberRef = @object( {+ @add:names(Name) / void "." void } )
+
+TypeRef = @object(
+    {+ @add:names(Name) / void "." void }
+    [ void @set:genericArgument(GenericArgument) ]
+)
+Parameter = @object(
+    [ @set:fieldMode(FieldMode) void ]
+    @set:name(Name)
+    [ void @set:dataType(TypeRef) ]
+    [ void "=" void @set:initialValue(Literal) ]
+)

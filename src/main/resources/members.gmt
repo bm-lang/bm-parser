@@ -1,0 +1,94 @@
+Module = @object(
+    [ @set:moduleAccess(ModuleAccess) void ]
+    [ @set:modifier(MemberModifier) void ]
+    "module" void @set:name (Name) void
+    `{` void { @add:members (ModuleMember) void } `}`
+)
+Field = @object(
+    [ @set:moduleAccess(ModuleAccess) void ]
+    [ @set:modifier(MemberModifier) void ]
+    @set:fieldMode(FieldMode) void
+    @set:name(Name) void
+    [ @set:dataType(TypeRef) void ]
+    [ `=` void @set:initialValue(ExpressionRaw) void ] `;`
+)
+Function = @object(
+    [ @set:moduleAccess(ModuleAccess) void ]
+    [ @set:modifier(MemberModifier) void ]
+    "function" void @set:name(Name) void
+    [ @set:genericSignature(GenericSignature) void ]
+    `(` void { @add:parameters(Parameter) / void `,` void } void `)` void
+    [ @set:returnType(TypeRef) void ]
+    ( @set:block(Block) | `;` )
+)
+Setter = @object(
+    [ @set:moduleAccess(ModuleAccess) void ]
+    [ @set:modifier(MemberModifier) void ]
+    "setter" void @set:name(Name) void
+    `(` void @set:parameter(Parameter) void `)` void
+    ( @set:block(Block) | `;` )
+)
+Getter = @object(
+    [ @set:moduleAccess(ModuleAccess) void ]
+    [ @set:modifier(MemberModifier) void ]
+    "getter" void @set:name(Name) void
+    [ @set:dataType(TypeRef) void ]
+    ( @set:block(Block) | `;` )
+)
+ChainedConstructor = @object(
+    @set:constructor(MemberRef) void
+    `(` void { @add:parameters(Parameter) void / void `,` void } `)`
+)
+Constructor = @object(
+    [ @set:moduleAccess(ModuleAccess) void ]
+    [ @set:modifier(MemberModifier) void ]
+    "constructor" void @set:name(Name) void
+    `(` void { @add:parameters(Parameter) / void `,` void } void `)` void
+    [ `:` void {1 @add:chainedConstructors(ChainedConstructor) void / void `,` void } ]
+    ( @set:block(Block) | `;` )
+)
+Operator = @object(
+    [ @set:moduleAccess(ModuleAccess) void ]
+    [ @set:modifier(MemberModifier) void ]
+    "operator" void @set:mode(OperatorMode) void
+    `(` void { @add:parameters (Parameter) / void `,` void } void `)` void
+    [ @set:returnType(TypeRef) void ]
+    ( @set:block(Block) | `;` )
+)
+Lambda = @object(
+    [ @set:moduleAccess(ModuleAccess) void ]
+    [ @set:modifier(MemberModifier) void ]
+    "lambda" void @set:name(Name) void
+    [ @set:genericSignature(GenericSignature) void ]
+    `(` void { @add:parameters(Parameter) / void `,` void } void `)` void
+    [ @set:returnType(TypeRef) void ]
+    `;`
+)
+Interface = @object(
+    [ @set:moduleAccess(ModuleAccess) void ]
+    [ @set:modifier(MemberModifier) void ]
+    "interface" void @set:name(Name) void
+    [ @set:genericSignature(GenericSignature) void ]
+    [ "implements" void {+ @add:superInterfaces(TypeRef) / void `,` void } void ]
+    `{` void { @add:members(InterfaceMember) void } `}`
+)
+Class = @object(
+  [ @set:moduleAccess(ModuleAccess) void ]
+  [ @set:modifier(MemberModifier) void ]
+  "class" void @set:name(Name) void
+  [ @set:genericSignature(GenericSignature) void ]
+  [ "inherits" void {+ @add:superClasses(TypeRef) / void `,` void } void ]
+  [ "implements" void {+ @add:superInterfaces(TypeRef) / void `,` void } void ]
+  `{` void { @add:members(ClassMember) void } `}`
+)
+Extension = @object(
+  [ @set:moduleAccess(ModuleAccess) void ]
+  [ @set:modifier(MemberModifier) void ]
+  "extension" void @set:name(Name) void
+  "for" void @set:targetType(TypeRef) void
+  `{` void { @add:members(ClassMember) void } `}`
+)
+
+ModuleMember = @union(Field, Function, Getter, Setter, Lambda, Interface, Class, Module, Extension)
+ClassMember =  @union(Field, Function, Getter, Setter, Operator, Constructor)
+InterfaceMember =  @union(Field, Function, Getter, Setter, Operator)

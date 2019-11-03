@@ -1,0 +1,18 @@
+#import 'common.gmt'
+#import 'expressions.gmt'
+#import 'instructions.gmt'
+#import 'members.gmt'
+
+ImportStatement = @object(
+    "import" void @add:importedMembers(MemberRef) void
+    { `,` void @add:importedMembers(MemberRef) void }
+    "from" void @set:fromModule(MemberRef) void
+    [ "into" void @set:intoModule(MemberRef) void ]
+    `;`
+)
+SourceFile = @object(
+    void
+    { @add:imports(ImportStatement) void }
+    { @add:members(ModuleMember) void }
+    $
+)

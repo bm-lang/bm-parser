@@ -1,0 +1,41 @@
+StringLiteral = @object(`"` @set:content({<`"`>}) `"`)
+NullLiteral = @object("null")
+BooleanLiteral = @object(@set:value("true" | "false"))
+NumberLiteral = @object(
+  [@set:sign(`+ -`)]
+  @set:integerPart({+digit})
+  [`.` @set:fractionPart({+digit})]
+  [`e E` [@set:exponentSign(`+ -`)]
+    @set:exponentNumber({+digit})]
+)
+
+Literal = @union(NullLiteral, StringLiteral, NumberLiteral, BooleanLiteral)
+
+reference-base = @set:symbol(symbol)
+    [ void @set:genericArgument(GenericArgument) ]
+    [ void `[` void @set:keyAccess(ExpressionRaw) void `]` ]
+
+Subreference = @object( @set:accessMode(`.` [`?`]) void reference-base )
+Reference = @object( reference-base { void @add:subreferences(Subreference) } [ void `[` {+ @add:indexes(ExpressionRaw) void / `,` void } `]` ] )
+
+InlineInvocation = @object(
+    @set:reference(Reference) void `(` void
+    { @add:arguments(ExpressionRaw) / void `,` void } void `)`
+)
+SignedExpression = @object(
+    @set:sign(`+ -` | "not" void)
+    @set:expression(ExpressionRaw)
+)
+LambdaValue = @object(
+    "->" void { @add:parameters(Parameter) void / `,` void }
+    @set:block(Block)
+)
+expression-unit = @union(LambdaValue, SignedExpression, ExpressionGroup, Literal, InlineInvocation, Reference)
+
+operators = "==" | "<=" | ">=" | "or" | "and" | `+ - * / ? : ^ % | < >`
+expression-items = {+ @add:items(expression-unit) / void @add:items(ExpressionOperator) void }
+
+ExpressionOperator = @object( @set:symbol(operators) )
+ExpressionGroup = @object(`(` void expression-items void `)`)
+ExpressionRaw = @object(expression-items)
+

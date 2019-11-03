@@ -1,0 +1,4 @@
+function main() {
+    for init1, init2 ; condition ; incr1, incr2 {}
+    for collection -> item {}
+}

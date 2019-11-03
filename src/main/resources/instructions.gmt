@@ -1,0 +1,80 @@
+FieldBlock = @object(
+    @set:fieldMode(FieldMode) void
+    @set:name(Name) void
+    [ @set:dataType(TypeRef) void ] `=` void
+    @set:initialValue(ExpressionRaw) void
+    `;`
+)
+IfBlock = @object(
+    "if" void @set:condition(ExpressionRaw) void
+    @set:block(Block)
+)
+ElseBlock = @object(
+    "else" void "if" void
+    @set:condition(ExpressionRaw) void
+    @set:block(Block)
+)
+IfElseBlock = @object(
+    @add:ifBlocks(IfBlock)
+    { void @add:ifBlocks(ElseBlock) }
+    [ void "else" void @set:elseBlock(Block) ]
+)
+Assignment = @object(
+    @set:reference(Reference) void `=` void
+    @set:value(ExpressionRaw) void `;`
+)
+Return = @object(
+  "return" void @set:value(ExpressionRaw) void `;`
+)
+Invocation = @object(
+  @set:invocation(InlineInvocation) void `;`
+)
+Loop = @object(
+  "loop" void @set:block(Block)
+)
+While = @object(
+    "while" void @set:condition(ExpressionRaw) void
+    @set:block(Block)
+)
+ForInit = @object:Assignment(@set:reference(Reference) void "=" void @set:value(ExpressionRaw))
+ForStep = @object:Increment(@set:reference(Reference) void "++")
+For = @object(
+    "for" void { @add:initialization(ForInit) void / `,` void }
+    `;` void [ @set:condition(ExpressionRaw) void ]
+    `;` void { @add:increment(ForStep) void / `,` void }
+    @set:block(Block)
+)
+ForEach = @object(
+    "for" void @set:source(Reference) void "->" void
+    @set:itemName(Name) [ void `,` void @set:keyName(Name) ] void
+    @set:block(Block)
+)
+Increment = @object(
+  @set:reference(Reference) void "++" void `;`
+)
+Decrement = @object(
+  @set:reference(Reference) void "--" void `;`
+)
+Throw = @object("throw" void @set:error(ExpressionRaw) void `;`)
+
+Break = @object("break" void `;`)
+
+Instruction = @union(
+  FieldBlock,
+  IfElseBlock,
+  Return,
+  Invocation,
+  Assignment,
+  Loop,
+  While,
+  For,
+  ForEach,
+  Increment,
+  Decrement,
+  Throw,
+  Break,
+)
+
+Block = @object(
+  `{` void { @add:instructions(Instruction) void } `}`
+)

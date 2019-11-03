@@ -1,2 +1,10 @@
 rootProject.name = 'bm-parser'
 
+sourceControl {
+    gitRepository("https://github.com/gramat-lang/jgramat.git") {
+        producesModule("gramat:jgramat")
+    }
+    gitRepository("https://github.com/bakasoft/json.git") {
+        producesModule("bakasoft:json")
+    }
+}
