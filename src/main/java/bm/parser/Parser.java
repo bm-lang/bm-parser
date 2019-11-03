@@ -11,9 +11,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class Parser {
 
@@ -79,9 +82,11 @@ public class Parser {
             }
 
             String text = new String(data);
-            Tape tape = new Tape(text, rootDir.relativize(file).toString());
+            Path relFile = rootDir.relativize(file);
+            Tape tape = new Tape(text, relFile.toString());
             PSourceFile sourceFile = grammar.parseFile(tape);
-            sourceFile.fileName = file.getFileName().toString();
+            sourceFile.modulePath = toStringArray(relFile.getParent());
+            sourceFile.fileName = relFile.getFileName().toString();
 
             System.out.println(Json.stringify(sourceFile, 2));
 
@@ -89,6 +94,12 @@ public class Parser {
         }
 
         return sourceFiles;
+    }
+
+    private String[] toStringArray(Path path) {
+        return StreamSupport.stream(path.spliterator(), false)
+            .map(Path::toString)
+            .toArray(String[]::new);
     }
 
     public Path getRootDirectory() { return rootDir; }
