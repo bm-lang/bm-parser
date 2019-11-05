@@ -9,10 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -20,12 +17,14 @@ import java.util.stream.StreamSupport;
 
 public class Parser {
 
+    private final Grammar grammar;
     private final Path bmFile;
     private final Path rootDir;
 
     private final List<Predicate<String>> ignoreds;
 
     public Parser(String bmFilePath) throws ParserException {
+        grammar = new Grammar();
         bmFile = Paths.get(bmFilePath);
 
         rootDir = bmFile.getParent();
@@ -48,7 +47,6 @@ public class Parser {
     }
 
     public List<PSourceFile> parseSourceFiles() throws ParserException {
-        Grammar grammar = new Grammar();
         ArrayList<PSourceFile> sourceFiles = new ArrayList<>();
         List<Path> files;
 
@@ -83,10 +81,9 @@ public class Parser {
 
             String text = new String(data);
             Path relFile = rootDir.relativize(file);
-            Tape tape = new Tape(text, relFile.toString());
-            PSourceFile sourceFile = grammar.parseFile(tape);
-            sourceFile.modulePath = toStringArray(relFile.getParent());
-            sourceFile.fileName = relFile.getFileName().toString();
+            String[] modulePath = toStringArray(relFile.getParent());
+            String fileName = relFile.getFileName().toString();
+            PSourceFile sourceFile = parseSourceFile(text, fileName, modulePath);
 
             System.out.println(Json.stringify(sourceFile, 2));
 
@@ -94,6 +91,15 @@ public class Parser {
         }
 
         return sourceFiles;
+    }
+
+    public PSourceFile parseSourceFile(String text, String fileName, String[] modulePath) {
+        String path = modulePath.length > 0 ? String.join("/", modulePath) : "";
+        Tape tape = new Tape(text, path + fileName);
+        PSourceFile sourceFile = grammar.parseFile(tape);
+        sourceFile.modulePath = modulePath;
+        sourceFile.fileName = fileName;
+        return sourceFile;
     }
 
     private String[] toStringArray(Path path) {
