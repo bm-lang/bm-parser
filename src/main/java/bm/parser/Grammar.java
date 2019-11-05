@@ -8,6 +8,10 @@ import org.gramat.Tape;
 import org.gramat.elements.Element;
 import org.gramat.Gramat;
 
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 public class Grammar {
@@ -28,7 +32,18 @@ public class Grammar {
 
         gramat.setTypeResolver(name -> classFinder.findClass("P" + name));
 
-        gramat.load("./src/main/resources/bm.gmt");
+        URL url = Grammar.class.getResource("/bm.gmt");
+        if (url == null) {
+            throw new RuntimeException("Resource not found: bm.gmt");
+        }
+        Path path;
+        try {
+            path = Paths.get(url.toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        gramat.load(path);
+
 
         Map<String, Element> result = gramat.compile();
 
