@@ -4,12 +4,17 @@ import bm.parser.target.*;
 import bm.parser.target.expressions.PExpression;
 import bm.parser.target.instructions.PInstruction;
 import bm.parser.util.ClassFinder;
+import org.gramat.PathResolver;
 import org.gramat.Tape;
 import org.gramat.elements.Element;
 import org.gramat.Gramat;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -32,17 +37,20 @@ public class Grammar {
 
         gramat.setTypeResolver(name -> classFinder.findClass("P" + name));
 
-        URL url = Grammar.class.getResource("/bm.gmt");
-        if (url == null) {
-            throw new RuntimeException("Resource not found: bm.gmt");
-        }
-        Path path;
-        try {
-            path = Paths.get(url.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        gramat.load(path);
+        PathResolver resolver = path -> {
+            InputStream stream = Grammar.class.getResourceAsStream(path);
+            if (stream == null) {
+                throw new RuntimeException("resource not found: " + path);
+            }
+            try {
+                byte[] data = stream.readAllBytes();
+
+                return new String(data, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
+        gramat.load("/bm.gmt", resolver);
 
 
         Map<String, Element> result = gramat.compile();

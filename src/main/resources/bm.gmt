@@ -1,7 +1,7 @@
-#import 'common.gmt'
-#import 'expressions.gmt'
-#import 'instructions.gmt'
-#import 'members.gmt'
+#import '/common.gmt'
+#import '/expressions.gmt'
+#import '/instructions.gmt'
+#import '/members.gmt'
 
 ImportStatement = @object(
     "import" void @add:importedMembers(MemberRef) void
