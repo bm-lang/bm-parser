@@ -18,20 +18,12 @@ import java.util.stream.StreamSupport;
 public class Parser {
 
     private final Grammar grammar;
-    private final Path bmFile;
-    private final Path rootDir;
 
     private final List<Predicate<String>> ignoreds;
 
-    public Parser(String bmFilePath) throws ParserException {
+    public Parser() throws ParserException {
         grammar = new Grammar();
-        bmFile = Paths.get(bmFilePath);
 
-        rootDir = bmFile.getParent();
-
-        if (rootDir == null) {
-            throw new RuntimeException(); // TODO error message
-        }
 
         ignoreds = new ArrayList<>();
 
@@ -39,14 +31,22 @@ public class Parser {
         ignoreds.add(Pattern.compile(".*/\\.git/.*").asPredicate());
     }
 
-    public PSuite parseSuite() {
+    public PSuite parseSuite(String bmFilePath) {
+        Path bmFile = Paths.get(bmFilePath);
+
+        Path rootDir = bmFile.getParent();
+
+        if (rootDir == null) {
+            throw new RuntimeException(); // TODO error message
+        }
+
         String name = rootDir.getFileName().toString();
-        List<PSourceFile> sourceFiles = parseSourceFiles();
+        List<PSourceFile> sourceFiles = parseSourceFiles(rootDir, bmFile);
 
         return new PSuite(name, sourceFiles);
     }
 
-    public List<PSourceFile> parseSourceFiles() throws ParserException {
+    public List<PSourceFile> parseSourceFiles(Path rootDir, Path bmFile) throws ParserException {
         ArrayList<PSourceFile> sourceFiles = new ArrayList<>();
         List<Path> files;
 
@@ -107,7 +107,5 @@ public class Parser {
             .map(Path::toString)
             .toArray(String[]::new);
     }
-
-    public Path getRootDirectory() { return rootDir; }
 
 }

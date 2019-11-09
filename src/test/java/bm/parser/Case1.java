@@ -9,9 +9,9 @@ public class Case1 {
   @Test
   public void test() {
     try {
-      Parser parser = new Parser("../bm-core/bm.json");
+      Parser parser = new Parser();
 
-      PSuite suite = parser.parseSuite();
+      PSuite suite = parser.parseSuite("../bm-core/bm.json");
 
       System.out.println(Json.stringify(suite, 2));
     } catch (Exception e) {
